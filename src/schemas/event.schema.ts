@@ -1,6 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { ExecFileSyncOptionsWithBufferEncoding } from 'child_process';
 import { Document } from 'mongoose';
+import { EventDate } from './eventDate.schema';
 
 export type EventDocument = Event & Document;
 
@@ -9,6 +9,6 @@ export class Event {
   @Prop({ required: true })
   name: string;
 
-  @Prop()
-  dates: [];
+  @Prop({ required: true })
+  dates: [EventDate];
 }
