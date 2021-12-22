@@ -1,14 +1,14 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { EventDate } from './eventDate.schema';
+import { EventDateSchema } from './eventDate.schema';
 
-export type EventDocument = Event & Document;
+export type EventDocument = EventSchema & Document;
 
 @Schema()
-export class Event {
+export class EventSchema {
   @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })
-  dates: [EventDate];
+  dates: [EventDateSchema];
 }
