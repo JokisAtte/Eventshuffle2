@@ -1,7 +1,6 @@
 import {
   ArrayMaxSize,
   ArrayNotEmpty,
-  IsDateString,
   IsNotEmpty,
   IsString,
   MaxLength,
@@ -15,7 +14,5 @@ export class CreateEventDto {
 
   @ArrayNotEmpty()
   @ArrayMaxSize(30)
-  @IsDateString({ strict: false })
-  @IsDateString({ each: true })
-  dates: string[];
+  dates: [{ date: string; votes?: string[] }];
 }

@@ -1,7 +1,8 @@
-POST 'http://localhost:3000/api/v1/event'
+POST http://localhost:3000/api/v1/event
 Content-Type: application/json
+
 {
-  "name": "Jake's secret party",
+  "name": "Testihommeli",
   "dates": [
     "2014-01-01",
     "2014-01-05",

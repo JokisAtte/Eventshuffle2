@@ -11,19 +11,22 @@ import { CreateEventDto } from './dto';
 import { EventsService } from './event.service';
 
 @Controller('/api/v1/event')
-export class EventController {
+export class EventsController {
   constructor(private readonly eventsService: EventsService) {}
 
   @Get('list')
-  findAll(): string[] {
-    return this.eventsService.getAllEvents();
+  async findAll(): Promise<{ id: string; name: string }[]> {
+    const events = await this.eventsService.getAllEvents();
+    return events.map((e) => ({ id: e.id, name: e.name }));
   }
 
   @Post()
   @UsePipes(new ValidationPipe({ transform: true }))
-  addEvent(@Body() createEventDto: CreateEventDto): { id: string } {
-    this.eventsService.insertEvent(createEventDto);
-    return { id: 'Placeholder' };
+  async addEvent(
+    @Body() createEventDto: CreateEventDto,
+  ): Promise<{ id: string }> {
+    const addedEvent = await this.eventsService.createEvent(createEventDto);
+    return { id: addedEvent.id };
   }
 
   @Get(':id')
