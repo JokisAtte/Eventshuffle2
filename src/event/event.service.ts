@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
+import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
 import { Event, EventDocument } from 'src/schemas/event.schema';
 import { CreateEventDto } from './dto';
@@ -21,6 +22,7 @@ export class EventsService {
       votes: createEventDto.dates.map((d) => {
         return { date: d, votes: [] };
       }),
+      voters: [],
     });
     return createdEvent.save();
   }
@@ -36,7 +38,10 @@ export class EventsService {
   ): Promise<EventDocument> {
     let event: EventDocument = await this.findEvent(id);
     event.votes.map((eventDate) => {
-      if (newVotes.includes(eventDate.date)) {
+      if (
+        newVotes.includes(eventDate.date) &&
+        !eventDate.votes.includes(voterName)
+      ) {
         eventDate.votes.push(voterName);
       }
     });
@@ -45,5 +50,22 @@ export class EventsService {
       .exec();
   }
 
-  getEventResult(id: string) {}
+  async getEventResult(id: string): Promise<{
+    id: string;
+    name: string;
+    suitableDates: { date: string; votes: string[] }[];
+  }> {
+    const event: EventDocument = await this.findEvent(id);
+    const voters: string[] = [];
+    event.votes.forEach((vote) => {
+      vote.votes.forEach((voter) => {
+        if (!voters.includes(voter)) voters.push(voter);
+      });
+    });
+    voters.sort();
+    const suitableDates = event.votes.filter((date) => {
+      return isEqual(date.votes.sort(), voters);
+    });
+    return { id: event.id, name: event.name, suitableDates: suitableDates };
+  }
 }

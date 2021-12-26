@@ -12,7 +12,7 @@ export class Event {
   dates: string[];
 
   @Prop()
-  votes: [{ date: string; votes?: string[] }];
+  votes: [{ date: string; votes: string[] }];
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);

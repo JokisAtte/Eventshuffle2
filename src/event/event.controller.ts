@@ -43,7 +43,8 @@ export class EventsController {
   }
 
   @Get(':id/results')
-  getEventResult(@Param() params): any {
+  async getEventResult(@Param() params): Promise<any> {
     console.log('getEventResult kutsuttu idllä:', params.id);
+    return await this.eventsService.getEventResult(params.id);
   }
 }
