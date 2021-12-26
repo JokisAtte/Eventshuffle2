@@ -1,2 +1,2 @@
-GET http://localhost:3000/api/v1/event/61c82a79c85589e8845d7e84/
+GET http://localhost:3000/api/v1/event/61c86d42b208fccb0be6897b/
 Content-Type: application/json

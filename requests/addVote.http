@@ -1,9 +1,9 @@
-POST http://localhost:3000/api/v1/event/61c82a79c85589e8845d7e84/vote
+POST http://localhost:3000/api/v1/event/61c86d42b208fccb0be6897b/vote
 Content-Type: application/json
 
 {
-  "name": "Halo halo",
+  "name": "po",
   "votes": [
-    "2014-01-05"
+    "2014-01-01"
   ]
 }
