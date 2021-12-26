@@ -7,6 +7,7 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
+import { EventDocument } from 'src/schemas/event.schema';
 import { CreateEventDto } from './dto';
 import { EventsService } from './event.service';
 
@@ -30,13 +31,15 @@ export class EventsController {
   }
 
   @Get(':id')
-  findEvent(@Param() params): any {
-    console.log('findEvent kutsuttu idllä:', params.id);
+  async findEvent(@Param() params): Promise<EventDocument> {
+    //console.log('findEvent kutsuttu idllä:', params.id);
+    return await this.eventsService.findEvent(params.id);
   }
 
   @Post(':id/vote')
-  addVote(@Param() params): any {
+  async addVote(@Param() params, @Body() body): Promise<any> {
     console.log('AddVote kutsuttu idllä:', params.id);
+    return await this.eventsService.addVote(params.id, body.name, body.votes);
   }
 
   @Get(':id/results')

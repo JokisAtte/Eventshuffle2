@@ -9,7 +9,10 @@ export class Event {
   name: string;
 
   @Prop({ required: true })
-  dates: [{ date: string; votes?: string[] }];
+  dates: string[];
+
+  @Prop()
+  votes: [{ date: string; votes?: string[] }];
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
