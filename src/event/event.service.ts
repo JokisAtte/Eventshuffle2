@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
@@ -10,12 +10,17 @@ export class EventsService {
   constructor(
     @InjectModel(Event.name) private eventModel: Model<EventDocument>,
   ) {}
+  private readonly logger = new Logger(EventsService.name);
 
   async getAllEvents(): Promise<EventDocument[]> {
-    return await this.eventModel.find().exec();
+    this.logger.log('Finding all events...');
+    const events = await this.eventModel.find().exec();
+    this.logger.log(`Found ${events.length} events`);
+    return events;
   }
 
   async createEvent(createEventDto: CreateEventDto): Promise<EventDocument> {
+    this.logger.log(`Creating new event : ${createEventDto.name}`);
     const createdEvent = new this.eventModel({
       name: createEventDto.name,
       dates: createEventDto.dates,
@@ -24,7 +29,11 @@ export class EventsService {
       }),
       voters: [],
     });
-    return createdEvent.save();
+    const result = await createdEvent.save();
+    result.isNew
+      ? this.logger.log(`Event id: ${result.id} created`)
+      : this.logger.error('Event already exists');
+    return result;
   }
 
   async findEvent(id: string): Promise<EventDocument> {

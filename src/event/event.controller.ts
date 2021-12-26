@@ -32,7 +32,6 @@ export class EventsController {
 
   @Get(':id')
   async findEvent(@Param() params): Promise<EventDocument> {
-    //console.log('findEvent kutsuttu idllä:', params.id);
     return await this.eventsService.findEvent(params.id);
   }
 

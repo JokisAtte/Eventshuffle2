@@ -5,7 +5,9 @@ import { AppModule } from './app.module';
 require('dotenv').config();
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    logger: ['error', 'warn', 'verbose', 'debug', 'log'],
+  });
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(process.env.PORT);
 }
