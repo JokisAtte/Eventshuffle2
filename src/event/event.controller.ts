@@ -43,7 +43,7 @@ export class EventsController {
   }
 
   @Post(':id/vote')
-  async addVote(@Param() params, @Body() body): Promise<EventDocument> {
+  async addVote(@Param() params, @Body() body): Promise<EventDocument | void> {
     this.logger.log(`EventController.addVote called with id: ${params.id}`);
     return await this.eventsService.addVote(params.id, body.name, body.votes);
   }
@@ -53,7 +53,7 @@ export class EventsController {
     id: string;
     name: string;
     suitableDates: { date: string; votes: string[] }[];
-  }> {
+  } | void> {
     this.logger.log(
       `EventController.getEventResult called with id: ${params.id}`,
     );

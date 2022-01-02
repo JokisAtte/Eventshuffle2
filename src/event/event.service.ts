@@ -5,6 +5,12 @@ import { Model } from 'mongoose';
 import { Event, EventDocument } from 'src/schemas/event.schema';
 import { CreateEventDto } from './dto';
 
+type EventResultInterface = {
+  id: string;
+  name: string;
+  suitableDates: { date: string; votes: string[] }[];
+};
+
 @Injectable()
 export class EventsService {
   constructor(
@@ -13,7 +19,7 @@ export class EventsService {
   private readonly logger = new Logger(EventsService.name);
 
   async getAllEvents(): Promise<EventDocument[]> {
-    this.logger.log('Finding all events...');
+    this.logger.log('Finding all events');
     try {
       const events = await this.eventModel.find().exec();
       this.logger.log(`Found ${events.length} events`);
@@ -35,9 +41,13 @@ export class EventsService {
         }),
       });
       const result = await createdEvent.save();
-      result.isNew
-        ? this.logger.log(`Event id: ${result.id} created`)
-        : this.logger.error(`Event ${result.id} already exists`);
+      if (!result.isNew) {
+        throw new HttpException(
+          `Event name must be unique. Event '${result.name}' already exists.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      this.logger.log(`Event id: ${result.id} created`);
       return result;
     } catch (error) {
       this.logger.error(error.message);
@@ -50,7 +60,6 @@ export class EventsService {
     try {
       const result = await this.eventModel.findById(id).exec();
       if (!result) {
-        console.log('asd');
         throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
       }
       this.logger.log(`Event '${result.name}' found`);
@@ -68,9 +77,9 @@ export class EventsService {
   ): Promise<EventDocument> {
     this.logger.log(`Adding vote of voter ${voterName} to event ${id}`);
     try {
-      let event: void | EventDocument = await this.findEvent(id);
+      let event = await this.eventModel.findById(id).exec();
       if (!event) {
-        throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+        throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
       }
       event.votes.map((eventDate) => {
         if (
@@ -89,27 +98,24 @@ export class EventsService {
     }
   }
 
-  async getEventResult(id: string): Promise<{
-    id: string;
-    name: string;
-    suitableDates: { date: string; votes: string[] }[];
-  }> {
+  async getEventResult(id: string): Promise<EventResultInterface> {
     this.logger.log(`Fiding result of ${id}`);
     try {
-      const event: EventDocument | void = await this.findEvent(id);
-      if (event) {
-        const voters: string[] = [];
-        event.votes.forEach((vote) => {
-          vote.votes.forEach((voter) => {
-            if (!voters.includes(voter)) voters.push(voter);
-          });
-        });
-        voters.sort();
-        const suitableDates = event.votes.filter((date) => {
-          return isEqual(date.votes.sort(), voters);
-        });
-        return { id: event.id, name: event.name, suitableDates };
+      let event = await this.eventModel.findById(id).exec();
+      if (!event) {
+        throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
       }
+      const voters: string[] = [];
+      event.votes.forEach((vote) => {
+        vote.votes.forEach((voter) => {
+          if (!voters.includes(voter)) voters.push(voter);
+        });
+      });
+      voters.sort();
+      const suitableDates = event.votes.filter((date) => {
+        return isEqual(date.votes.sort(), voters);
+      });
+      return { id: event.id, name: event.name, suitableDates };
     } catch (error) {
       this.logger.error(error);
       return error;

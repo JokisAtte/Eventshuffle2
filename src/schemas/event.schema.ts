@@ -5,7 +5,7 @@ export type EventDocument = Event & Document;
 
 @Schema()
 export class Event {
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true })
   name: string;
 
   @Prop({ required: true })
