@@ -18,6 +18,15 @@ export class EventsService {
   ) {}
   private readonly logger = new Logger(EventsService.name);
 
+  private async getEvent(id: string) {
+    const result = await this.eventModel.findById(id).exec();
+    if (!result) {
+      throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
+    }
+    this.logger.log(`Event '${result.name}' found`);
+    return result;
+  }
+
   async getAllEvents(): Promise<EventDocument[]> {
     this.logger.log('Finding all events');
     try {
@@ -58,10 +67,7 @@ export class EventsService {
   async findEvent(id: string): Promise<EventDocument | void> {
     this.logger.log(`Finding event: ${id}...`);
     try {
-      const result = await this.eventModel.findById(id).exec();
-      if (!result) {
-        throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
-      }
+      const result = await this.getEvent(id);
       this.logger.log(`Event '${result.name}' found`);
       return result;
     } catch (error) {
@@ -77,11 +83,8 @@ export class EventsService {
   ): Promise<EventDocument> {
     this.logger.log(`Adding vote of voter ${voterName} to event ${id}`);
     try {
-      let event = await this.eventModel.findById(id).exec();
-      if (!event) {
-        throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
-      }
-      event.votes.map((eventDate) => {
+      const result = await this.getEvent(id);
+      result.votes.map((eventDate) => {
         if (
           newVotes.includes(eventDate.date) &&
           !eventDate.votes.includes(voterName)
@@ -90,7 +93,7 @@ export class EventsService {
         }
       });
       return await this.eventModel
-        .findByIdAndUpdate(id, event, { returnDocument: 'after' })
+        .findByIdAndUpdate(id, result, { returnDocument: 'after' })
         .exec();
     } catch (error) {
       this.logger.error(error.message);
@@ -101,21 +104,18 @@ export class EventsService {
   async getEventResult(id: string): Promise<EventResultInterface> {
     this.logger.log(`Fiding result of ${id}`);
     try {
-      let event = await this.eventModel.findById(id).exec();
-      if (!event) {
-        throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
-      }
+      const result = await this.getEvent(id);
       const voters: string[] = [];
-      event.votes.forEach((vote) => {
+      result.votes.forEach((vote) => {
         vote.votes.forEach((voter) => {
           if (!voters.includes(voter)) voters.push(voter);
         });
       });
       voters.sort();
-      const suitableDates = event.votes.filter((date) => {
+      const suitableDates = result.votes.filter((date) => {
         return isEqual(date.votes.sort(), voters);
       });
-      return { id: event.id, name: event.name, suitableDates };
+      return { id: result.id, name: result.name, suitableDates };
     } catch (error) {
       this.logger.error(error);
       return error;
