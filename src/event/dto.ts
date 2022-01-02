@@ -15,8 +15,4 @@ export class CreateEventDto {
   @ArrayNotEmpty()
   @ArrayMaxSize(30)
   dates: string[];
-
-  /*   @ArrayNotEmpty()
-  @ArrayMaxSize(30)
-  votes: [{ date: string; votes?: string[] }]; */
 }
