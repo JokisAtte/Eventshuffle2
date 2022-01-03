@@ -2,8 +2,8 @@ import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
-import { Event, EventDocument } from 'src/schemas/event.schema';
-import { CreateEventDto } from './dto';
+import { Event, EventDocument } from 'src/event/event.schema';
+import { CreateEventDto } from './event.dto';
 
 type EventResultInterface = {
   id: string;
@@ -18,7 +18,7 @@ export class EventsService {
   ) {}
   private readonly logger = new Logger(EventsService.name);
 
-  private async getEvent(id: string) {
+  private async _getEvent(id: string) {
     const result = await this.eventModel.findById(id).exec();
     if (!result) {
       throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
@@ -41,21 +41,23 @@ export class EventsService {
 
   async createEvent(createEventDto: CreateEventDto): Promise<EventDocument> {
     this.logger.log(`Creating new event : ${createEventDto.name}`);
+
     try {
       const createdEvent = new this.eventModel({
         name: createEventDto.name,
         dates: createEventDto.dates,
-        votes: createEventDto.dates.map((d) => {
-          return { date: d, votes: [] };
-        }),
+        votes: createEventDto.dates.map((d) => ({ date: d, votes: [] })),
       });
+
       const result = await createdEvent.save();
+      console.log(result);
       if (!result.isNew) {
         throw new HttpException(
           `Event name must be unique. Event '${result.name}' already exists.`,
           HttpStatus.BAD_REQUEST,
         );
       }
+
       this.logger.log(`Event id: ${result.id} created`);
       return result;
     } catch (error) {
@@ -67,7 +69,7 @@ export class EventsService {
   async findEvent(id: string): Promise<EventDocument | void> {
     this.logger.log(`Finding event: ${id}...`);
     try {
-      const result = await this.getEvent(id);
+      const result = await this._getEvent(id);
       this.logger.log(`Event '${result.name}' found`);
       return result;
     } catch (error) {
@@ -83,8 +85,10 @@ export class EventsService {
   ): Promise<EventDocument> {
     this.logger.log(`Adding vote of voter ${voterName} to event ${id}`);
     try {
-      const result = await this.getEvent(id);
-      result.votes.map((eventDate) => {
+      const event = await this._getEvent(id);
+
+      // Check if voted dates include event date, and if voter has already voted for that day
+      event.votes.forEach((eventDate) => {
         if (
           newVotes.includes(eventDate.date) &&
           !eventDate.votes.includes(voterName)
@@ -92,8 +96,9 @@ export class EventsService {
           eventDate.votes.push(voterName);
         }
       });
-      return await this.eventModel
-        .findByIdAndUpdate(id, result, { returnDocument: 'after' })
+      //TODO: Selvitä ja korjaa ei tarvi ettii uusiks find by id kun on jo referenssi
+      return this.eventModel
+        .findByIdAndUpdate(id, event, { returnDocument: 'after' })
         .exec();
     } catch (error) {
       this.logger.error(error.message);
@@ -104,18 +109,22 @@ export class EventsService {
   async getEventResult(id: string): Promise<EventResultInterface> {
     this.logger.log(`Fiding result of ${id}`);
     try {
-      const result = await this.getEvent(id);
+      const event = await this._getEvent(id);
       const voters: string[] = [];
-      result.votes.forEach((vote) => {
-        vote.votes.forEach((voter) => {
+
+      // Find unique voters from each date
+      event.votes.forEach(({ votes }) => {
+        votes.forEach((voter) => {
           if (!voters.includes(voter)) voters.push(voter);
         });
       });
       voters.sort();
-      const suitableDates = result.votes.filter((date) => {
-        return isEqual(date.votes.sort(), voters);
+      // Find suitable dates that have all the unique voters
+      const suitableDates = event.votes.filter(({ votes }) => {
+        return isEqual(votes.sort(), voters);
       });
-      return { id: result.id, name: result.name, suitableDates };
+
+      return { id: event.id, name: event.name, suitableDates };
     } catch (error) {
       this.logger.error(error);
       return error;

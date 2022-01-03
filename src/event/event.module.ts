@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { Event, EventSchema } from 'src/schemas/event.schema';
+import { Event, EventSchema } from './event.schema';
 import { EventsService } from './event.service';
 
 @Module({

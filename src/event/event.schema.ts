@@ -1,8 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
-export type EventDocument = Event & Document;
-
 @Schema()
 export class Event {
   @Prop({ required: true, unique: true })
@@ -16,3 +14,4 @@ export class Event {
 }
 
 export const EventSchema = SchemaFactory.createForClass(Event);
+export type EventDocument = Event & Document;

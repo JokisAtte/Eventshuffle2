@@ -9,7 +9,7 @@ import {
 export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
-  @MaxLength(100)
+  @MaxLength(60)
   name: string;
 
   @ArrayNotEmpty()
