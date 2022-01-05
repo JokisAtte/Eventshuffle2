@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
@@ -21,7 +26,7 @@ export class EventsService {
   private async _getEvent(id: string) {
     const result = await this.eventModel.findById(id).exec();
     if (!result) {
-      throw new HttpException('Event not Found', HttpStatus.NOT_FOUND);
+      throw new NotFoundException(`Event '${id}' not found.`);
     }
     this.logger.log(`Event '${result.name}' found`);
     return result;
@@ -52,9 +57,8 @@ export class EventsService {
       const result = await createdEvent.save();
       console.log(result);
       if (!result.isNew) {
-        throw new HttpException(
+        throw new BadRequestException(
           `Event name must be unique. Event '${result.name}' already exists.`,
-          HttpStatus.BAD_REQUEST,
         );
       }
 
@@ -96,7 +100,7 @@ export class EventsService {
           eventDate.votes.push(voterName);
         }
       });
-      //TODO: Selvitä ja korjaa ei tarvi ettii uusiks find by id kun on jo referenssi
+      //TODo: Selvitä ja korjaa ei tarvi ettii uusiks find by id kun on jo referenssi
       return this.eventModel
         .findByIdAndUpdate(id, event, { returnDocument: 'after' })
         .exec();
