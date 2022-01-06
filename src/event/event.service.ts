@@ -24,12 +24,22 @@ export class EventsService {
   private readonly logger = new Logger(EventsService.name);
 
   private async _getEvent(id: string) {
-    const result = await this.eventModel.findById(id).exec();
-    if (!result) {
-      throw new NotFoundException(`Event '${id}' not found.`);
+    try {
+      const result = await this.eventModel.findById(id).exec();
+      if (!result) {
+        throw new NotFoundException(`Event '${id}' not found.`);
+      }
+      this.logger.log(`Event '${result.name}' found`);
+      return result;
+    } catch (error) {
+      this.logger.error(error.message);
+      return error;
     }
-    this.logger.log(`Event '${result.name}' found`);
-    return result;
+  }
+
+  private _handleError(error) {
+    this.logger.error(error.message);
+    return error;
   }
 
   async getAllEvents(): Promise<EventDocument[]> {
@@ -39,8 +49,7 @@ export class EventsService {
       this.logger.log(`Found ${events.length} events`);
       return events;
     } catch (error) {
-      this.logger.error(error.message);
-      return error;
+      return this._handleError(error);
     }
   }
 
@@ -53,7 +62,7 @@ export class EventsService {
         dates: createEventDto.dates,
         votes: createEventDto.dates.map((d) => ({ date: d, votes: [] })),
       });
-
+      // TODO: Varmista ettei overridee olevassa olevaa eventtiä jos nimi sama.
       const result = await createdEvent.save();
       console.log(result);
       if (!result.isNew) {
@@ -65,20 +74,18 @@ export class EventsService {
       this.logger.log(`Event id: ${result.id} created`);
       return result;
     } catch (error) {
-      this.logger.error(error.message);
-      return error;
+      return this._handleError(error);
     }
   }
 
-  async findEvent(id: string): Promise<EventDocument | void> {
+  async findEvent(id: string): Promise<EventDocument> {
     this.logger.log(`Finding event: ${id}...`);
     try {
       const result = await this._getEvent(id);
       this.logger.log(`Event '${result.name}' found`);
       return result;
     } catch (error) {
-      this.logger.error(error.message);
-      return error;
+      return this._handleError(error);
     }
   }
 
@@ -100,13 +107,9 @@ export class EventsService {
           eventDate.votes.push(voterName);
         }
       });
-      //TODo: Selvitä ja korjaa ei tarvi ettii uusiks find by id kun on jo referenssi
-      return this.eventModel
-        .findByIdAndUpdate(id, event, { returnDocument: 'after' })
-        .exec();
+      return await event.save();
     } catch (error) {
-      this.logger.error(error.message);
-      return error;
+      return this._handleError(error);
     }
   }
 
@@ -122,16 +125,16 @@ export class EventsService {
           if (!voters.includes(voter)) voters.push(voter);
         });
       });
-      voters.sort();
+
       // Find suitable dates that have all the unique voters
+      voters.sort();
       const suitableDates = event.votes.filter(({ votes }) => {
         return isEqual(votes.sort(), voters);
       });
 
       return { id: event.id, name: event.name, suitableDates };
     } catch (error) {
-      this.logger.error(error);
-      return error;
+      return this._handleError(error);
     }
   }
 }
