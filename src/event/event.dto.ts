@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   ArrayNotEmpty,
@@ -10,9 +11,11 @@ export class CreateEventDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(60)
+  @ApiProperty()
   name: string;
 
   @ArrayNotEmpty()
   @ArrayMaxSize(30)
+  @ApiProperty()
   dates: string[];
 }

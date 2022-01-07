@@ -1,4 +1,4 @@
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException, Param } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
@@ -18,6 +18,11 @@ export class EventsService {
   ) {}
   private readonly logger = new Logger(EventsService.name);
 
+  /**
+   * finds event with given id from database
+   * @param id
+   * @returns event corresponding to the id parameter
+   */
   private async _getEvent(id: string) {
     const result = await this.eventModel.findById(id).exec();
     if (!result) {
@@ -73,7 +78,7 @@ export class EventsService {
   /**
    * Finds one event
    * @param id
-   * @returns event with given id
+   * @returns event corresponding to the id parameter
    */
   async findEvent(id: string): Promise<EventDocument> {
     this.logger.log(`Finding event: ${id}...`);
@@ -94,8 +99,11 @@ export class EventsService {
    * @returns updated event
    */
   async addVote(
+    @Param()
     id: string,
+    @Param()
     voterName: string,
+    @Param()
     newVotes: string[],
   ): Promise<EventDocument> {
     this.logger.log(`Adding vote of voter ${voterName} to event ${id}`);
@@ -122,7 +130,7 @@ export class EventsService {
    * @param id
    * @returns all dates that suit all voters
    */
-  async getEventResult(id: string): Promise<EventResultInterface> {
+  async getEventResult(@Param() id: string): Promise<EventResultInterface> {
     this.logger.log(`Fiding result of ${id}`);
     try {
       const event = await this._getEvent(id);
