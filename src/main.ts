@@ -10,6 +10,7 @@ async function bootstrap() {
   });
 
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
+  app.setGlobalPrefix('/api/v1/');
 
   const config = new DocumentBuilder()
     .setTitle('Eventshuffle backend API')

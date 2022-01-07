@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 @Schema()
 export class Event {
-  @Prop({ required: true, unique: true })
+  @Prop({ required: true })
   name: string;
 
   @Prop({ required: true })

@@ -1,9 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
@@ -24,24 +19,23 @@ export class EventsService {
   private readonly logger = new Logger(EventsService.name);
 
   private async _getEvent(id: string) {
-    try {
-      const result = await this.eventModel.findById(id).exec();
-      if (!result) {
-        throw new NotFoundException(`Event '${id}' not found.`);
-      }
-      this.logger.log(`Event '${result.name}' found`);
-      return result;
-    } catch (error) {
-      this.logger.error(error.message);
-      return error;
+    const result = await this.eventModel.findById(id).exec();
+    if (!result) {
+      throw new NotFoundException(`Event '${id}' not found.`);
     }
+    this.logger.log(`Event '${result.name}' found`);
+    return result;
   }
 
   private _handleError(error) {
-    this.logger.error(error.message);
-    return error;
+    this.logger.error(error);
+    throw error;
   }
 
+  /**
+   * Returns all events in database
+   * @returns list of events
+   */
   async getAllEvents(): Promise<EventDocument[]> {
     this.logger.log('Finding all events');
     try {
@@ -49,10 +43,15 @@ export class EventsService {
       this.logger.log(`Found ${events.length} events`);
       return events;
     } catch (error) {
-      return this._handleError(error);
+      this._handleError(error);
     }
   }
 
+  /**
+   * Creates new event and saves it to database
+   * @param createEventDto
+   * @returns Created event
+   */
   async createEvent(createEventDto: CreateEventDto): Promise<EventDocument> {
     this.logger.log(`Creating new event : ${createEventDto.name}`);
 
@@ -62,22 +61,20 @@ export class EventsService {
         dates: createEventDto.dates,
         votes: createEventDto.dates.map((d) => ({ date: d, votes: [] })),
       });
-      // TODO: Varmista ettei overridee olevassa olevaa eventtiä jos nimi sama.
-      const result = await createdEvent.save();
-      console.log(result);
-      if (!result.isNew) {
-        throw new BadRequestException(
-          `Event name must be unique. Event '${result.name}' already exists.`,
-        );
-      }
 
+      const result = await createdEvent.save();
       this.logger.log(`Event id: ${result.id} created`);
       return result;
     } catch (error) {
-      return this._handleError(error);
+      this._handleError(error);
     }
   }
 
+  /**
+   * Finds one event
+   * @param id
+   * @returns event with given id
+   */
   async findEvent(id: string): Promise<EventDocument> {
     this.logger.log(`Finding event: ${id}...`);
     try {
@@ -85,10 +82,17 @@ export class EventsService {
       this.logger.log(`Event '${result.name}' found`);
       return result;
     } catch (error) {
-      return this._handleError(error);
+      this._handleError(error);
     }
   }
 
+  /**
+   * Adds a vote to an event
+   * @param id
+   * @param voterName
+   * @param newVotes
+   * @returns updated event
+   */
   async addVote(
     id: string,
     voterName: string,
@@ -109,10 +113,15 @@ export class EventsService {
       });
       return await event.save();
     } catch (error) {
-      return this._handleError(error);
+      this._handleError(error);
     }
   }
 
+  /**
+   * Searches for dates that suit all voters
+   * @param id
+   * @returns all dates that suit all voters
+   */
   async getEventResult(id: string): Promise<EventResultInterface> {
     this.logger.log(`Fiding result of ${id}`);
     try {
@@ -134,7 +143,7 @@ export class EventsService {
 
       return { id: event.id, name: event.name, suitableDates };
     } catch (error) {
-      return this._handleError(error);
+      this._handleError(error);
     }
   }
 }
