@@ -2,7 +2,7 @@
 
 Eventshuffle 2 backend API
 
-Built with: [Nest](https://github.com/nestjs/nest) framework.
+Built with [Nest](https://github.com/nestjs/nest) framework.
 
 ## Installation
 
