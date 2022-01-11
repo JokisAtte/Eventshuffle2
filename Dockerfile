@@ -1,4 +1,4 @@
-FROM node:16
+FROM node:16-alpine As build
 
 WORKDIR /usr/src/app
 
@@ -8,6 +8,21 @@ RUN npm install
 
 COPY . .
 
-EXPOSE 3000
+RUN npm run build
 
-CMD [ "node", "main.ts"]
+FROM node:16-alpine as production
+
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+
+WORKDIR /usr/src/app
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY . .
+
+COPY --from=build /usr/src/app/dist ./dist
+
+CMD ["npm", "run", "start:prod"]

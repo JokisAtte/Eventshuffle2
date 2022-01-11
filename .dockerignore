@@ -1,2 +1,8 @@
 node_modules
+dist
+requests
+.eslintrc
+.gitignore
+.prettierrc
+README*
 npm-debug.log
