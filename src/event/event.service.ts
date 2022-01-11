@@ -20,7 +20,7 @@ export class EventsService {
 
   /**
    * finds event with given id from database
-   * @param id
+   * @param id event id
    * @returns event corresponding to the id parameter
    */
   private async _getEvent(id: string) {

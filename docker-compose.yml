@@ -1,6 +1,6 @@
 version: '3'
 services:
-  eventshuffle2-backendapi:
+  eventshuffle2:
     build: .
     ports:
       - '3000:3000'
