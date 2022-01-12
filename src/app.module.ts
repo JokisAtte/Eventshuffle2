@@ -7,7 +7,7 @@ import { EventsModule } from './event/event.module';
 dotenvConfig();
 
 @Module({
-  imports: [MongooseModule.forRoot(process.env.MONGODB_URI), EventsModule],
+  imports: [MongooseModule.forRoot(process.env.MONGODB_URI_DEV), EventsModule],
   controllers: [EventsController],
   providers: [],
 })
