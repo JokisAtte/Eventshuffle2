@@ -26,19 +26,19 @@ export class EventsController {
 
   @Get('/:id')
   @ApiOperation({ summary: 'Finds event by id' })
-  async findEvent(@Param('id') params) {
-    return this.eventsService.findEvent(params.id);
+  async findEvent(@Param('id') id: string) {
+    return this.eventsService.findEvent(id);
   }
 
   @Post('/:id/vote')
   @ApiOperation({ summary: 'Adds votes to event' })
-  addVote(params: { id: string }, @Body() body) {
-    return this.eventsService.addVote(params.id, body.name, body.votes);
+  addVote(@Param('id') id: string, @Body() body) {
+    return this.eventsService.addVote(id, body.name, body.votes);
   }
 
   @Get('/:id/results')
   @ApiOperation({ summary: 'Returns dates that suit all voters' })
-  getEventResult(params: { id: string }) {
-    return this.eventsService.getEventResult(params.id);
+  getEventResult(@Param('id') id: string) {
+    return this.eventsService.getEventResult(id);
   }
 }

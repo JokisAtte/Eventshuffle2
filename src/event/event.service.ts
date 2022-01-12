@@ -2,8 +2,8 @@ import { Injectable, Logger, NotFoundException, Param } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { isEqual } from 'lodash';
 import { Model } from 'mongoose';
-import { Event, EventDocument } from 'src/event/event.schema';
 import { CreateEventDto } from './event.dto';
+import { Event, EventDocument } from './event.schema';
 
 type EventResultInterface = {
   id: string;
@@ -84,7 +84,6 @@ export class EventsService {
     this.logger.log(`Finding event: ${id}...`);
     try {
       const result = await this._getEvent(id);
-      this.logger.log(`Event '${result.name}' found`);
       return result;
     } catch (error) {
       this._handleError(error);
@@ -99,11 +98,8 @@ export class EventsService {
    * @returns updated event
    */
   async addVote(
-    @Param()
     id: string,
-    @Param()
     voterName: string,
-    @Param()
     newVotes: string[],
   ): Promise<EventDocument> {
     this.logger.log(`Adding vote of voter ${voterName} to event ${id}`);
@@ -128,7 +124,8 @@ export class EventsService {
   /**
    * Searches for dates that suit all voters
    * @param id
-   * @returns all dates that suit all voters
+   * @returns Array of dates that suit all voters.
+   * Empty Array if no votes are given, or there are no suitable dates
    */
   async getEventResult(@Param() id: string): Promise<EventResultInterface> {
     this.logger.log(`Fiding result of ${id}`);
@@ -143,11 +140,14 @@ export class EventsService {
         });
       });
 
-      // Find suitable dates that have all the unique voters
-      voters.sort();
-      const suitableDates = event.votes.filter(({ votes }) => {
-        return isEqual(votes.sort(), voters);
-      });
+      let suitableDates = [];
+      if (voters.length > 0) {
+        // Find suitable dates that have all the unique voters
+        voters.sort();
+        suitableDates = event.votes.filter(({ votes }) => {
+          return isEqual(votes.sort(), voters);
+        });
+      }
 
       return { id: event.id, name: event.name, suitableDates };
     } catch (error) {
