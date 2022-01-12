@@ -19,9 +19,9 @@ WORKDIR /usr/src/app
 
 COPY package*.json ./
 
-COPY . .
-
 RUN npm install
+
+COPY . .
 
 COPY --from=build /usr/src/app/dist ./dist
 
