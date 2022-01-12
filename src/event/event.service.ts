@@ -115,6 +115,9 @@ export class EventsService {
           eventDate.votes.push(voterName);
         }
       });
+
+      //markModified enables mongodb to detect changes in the array
+      event.markModified('votes');
       return await event.save();
     } catch (error) {
       this._handleError(error);
