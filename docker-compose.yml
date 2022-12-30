@@ -3,4 +3,24 @@ services:
   eventshuffle2-backendapi:
     build: .
     ports:
-      - '3000:3000'
+      - 3000:3000
+    networks:
+      - eventshuffle2
+  mongodb:
+    image: mongo:latest
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 12345678
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+    networks:
+      - eventshuffle2
+
+volumes:
+  mongodb_data_container:
+
+networks:
+  eventshuffle2:
+    name: eventshuffle2
