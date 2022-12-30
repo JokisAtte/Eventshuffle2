@@ -7,7 +7,8 @@ Built with [NestJS](https://github.com/nestjs/nest) framework.
 Eventshuffle is an (currently imaginary) app that helps with arranging events and meetins. In the app you can create an event with multiple dates. Users can then vote for date(s) suitable for them. The app can then display the date(s) with most votes. date format is 'YYYY-MM-DD'.
 
 ## Requirements
-- NodeJS version 17 or newer (and npm)
+- NodeJS v17 or newer
+- npm v8 or yarn
 - Docker V20 or newer
 - Docker compose v2
 
@@ -16,6 +17,10 @@ Navigate to the cloned repository
 
 ```bash
 $ npm install
+```
+or
+```bash
+$ yarn install
 ```
 
 # Environment variables
