@@ -48,7 +48,7 @@ You can add example events by running these commands:
 
 Then you can use ````/api/v1/event/list``` to find the events
 
-Navigate to ```/api``` to find api documentation
+Navigate to ```/api``` to find API documentation
 
 ## License
 
