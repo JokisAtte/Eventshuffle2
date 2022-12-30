@@ -16,7 +16,7 @@ export class EventsController {
   }
 
   @Post('/')
-  @ApiOperation({ summary: 'Creates new event' })
+  @ApiOperation({ summary: 'Creates new event. Give date as \'YYYY-MM-DD\'' })
   async addEvent(
     @Body() createEventDto: CreateEventDto,
   ): Promise<{ id: string }> {
