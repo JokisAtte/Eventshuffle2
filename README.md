@@ -5,6 +5,7 @@ Eventshuffle 2 backend API
 Built with [NestJS](https://github.com/nestjs/nest) framework.
 
 ## Installation
+Navigate to the cloned repository
 
 ```bash
 $ npm install
@@ -13,14 +14,7 @@ $ npm install
 ## Running the app
 
 ```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+$ docker-compose -f "docker-compose.yml" up -d --build
 ```
 
 ## Test
