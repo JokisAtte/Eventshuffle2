@@ -33,7 +33,7 @@ $ cp .env.example .env
 ```
 Fill out the required fields, you most likely have them in your email.
 
-## Running the app
+## Running the app and using it
 
 ```bash
 $ docker-compose -f "docker-compose.yml" up -d --build
@@ -45,6 +45,10 @@ You can add example events by running these commands:
 ```curl -X POST http://localhost:3000/api/v1/event -H 'Content-Type: application/json' -d @exampleEvent.json```
 
 ```curl -X POST http://localhost:3000/api/v1/event -H 'Content-Type: application/json' -d @exampleEvent2.json```
+
+Then you can use ````/api/v1/event/list``` to find the events
+
+Navigate to ```/api``` to find api documentation
 
 ## License
 
