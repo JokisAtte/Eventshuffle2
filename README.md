@@ -41,11 +41,10 @@ $ docker-compose -f "docker-compose.yml" up -d --build
 After running you can access API documentation at ```/api```
 
 You can add example events by running these commands:
-```curl -X POST http://localhost:3000/api/v1/event -H 'Content-Type: application/json' -d @exampleEvent.json```
-```curl -X POST http://localhost:3000/api/v1/event -H 'Content-Type: application/json' -d @exampleEvent2.json```
-```
 
-```
+```curl -X POST http://localhost:3000/api/v1/event -H 'Content-Type: application/json' -d @exampleEvent.json```
+
+```curl -X POST http://localhost:3000/api/v1/event -H 'Content-Type: application/json' -d @exampleEvent2.json```
 
 ## License
 
