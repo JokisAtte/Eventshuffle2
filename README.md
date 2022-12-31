@@ -1,6 +1,4 @@
-## Description
-
-Eventshuffle backend API
+# Eventshuffle backend API
 
 Built with [NestJS](https://github.com/nestjs/nest) framework.
 
